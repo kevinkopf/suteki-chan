@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class CommentEventModel(BaseModel):
-    suteki_request_type: Literal['Note Hook']
+    type: Literal['Note Hook']
     object_kind: str
     event_type: str
     user: dict
@@ -19,7 +19,7 @@ class CommentEventModel(BaseModel):
 
 
 class DeploymentEventModel(BaseModel):
-    suteki_request_type: Literal['Deployment Hook']
+    type: Literal['Deployment Hook']
     object_kind: str
     status: str
     status_changed_at: datetime
@@ -39,7 +39,7 @@ class DeploymentEventModel(BaseModel):
 
 
 class FeatureFlagEventModel(BaseModel):
-    suteki_request_type: Literal['Feature Flag Hook']
+    type: Literal['Feature Flag Hook']
     object_kind: str
     project: dict
     user: dict
@@ -48,7 +48,7 @@ class FeatureFlagEventModel(BaseModel):
 
 
 class GroupMemberEventModel(BaseModel):
-    suteki_request_type: Literal['Member Hook']
+    type: Literal['Member Hook']
     created_at: datetime
     updated_at: datetime
     group_name: str
@@ -65,7 +65,7 @@ class GroupMemberEventModel(BaseModel):
 
 
 class IssueEventModel(BaseModel):
-    suteki_request_type: Literal['Issue Hook']
+    type: Literal['Issue Hook']
     object_kind: str
     event_type: str
     user: dict
@@ -79,7 +79,7 @@ class IssueEventModel(BaseModel):
 
 
 class JobEventModel(BaseModel):
-    suteki_request_type: Literal['Job Hook']
+    type: Literal['Job Hook']
     object_kind: str
     ref: str
     tag: bool
@@ -108,7 +108,7 @@ class JobEventModel(BaseModel):
 
 
 class MergeRequestEventModel(BaseModel):
-    suteki_request_type: Literal['Merge Request Hook']
+    type: Literal['Merge Request Hook']
     object_kind: str
     event_type: str
     user: dict
@@ -122,7 +122,7 @@ class MergeRequestEventModel(BaseModel):
 
 
 class PipelineEventModel(BaseModel):
-    suteki_request_type: Literal['Pipeline Hook']
+    type: Literal['Pipeline Hook']
     object_kind: str
     object_attributes: dict
     merge_request: dict
@@ -134,7 +134,7 @@ class PipelineEventModel(BaseModel):
 
 
 class PushEventModel(BaseModel):
-    suteki_request_type: Literal['Push Hook']
+    type: Literal['Push Hook']
     object_kind: str
     event_name: str
     before: str
@@ -154,7 +154,7 @@ class PushEventModel(BaseModel):
 
 
 class ReleaseEventModel(BaseModel):
-    suteki_request_type: Literal['Release Hook']
+    type: Literal['Release Hook']
     id: int
     created_at: datetime
     description: str
@@ -170,7 +170,7 @@ class ReleaseEventModel(BaseModel):
 
 
 class SubgroupEventModel(BaseModel):
-    suteki_request_type: Literal['Subgroup Hook']
+    type: Literal['Subgroup Hook']
     created_at: datetime
     updated_at: datetime
     event_name: str
@@ -185,7 +185,7 @@ class SubgroupEventModel(BaseModel):
 
 
 class TagEventModel(BaseModel):
-    suteki_request_type: Literal['Tag Push Hook']
+    type: Literal['Tag Push Hook']
     object_kind: str
     event_name: str
     before: str
@@ -203,7 +203,7 @@ class TagEventModel(BaseModel):
 
 
 class WikiPageEventModel(BaseModel):
-    suteki_request_type: Literal['Wiki Page Hook']
+    type: Literal['Wiki Page Hook']
     object_kind: str
     user: dict
     project: dict
@@ -212,7 +212,7 @@ class WikiPageEventModel(BaseModel):
 
 
 class Model(BaseModel):
-    event: CommentEventModel | \
+    model: CommentEventModel | \
          DeploymentEventModel | \
          FeatureFlagEventModel | \
          GroupMemberEventModel | \
@@ -225,4 +225,4 @@ class Model(BaseModel):
          SubgroupEventModel | \
          TagEventModel | \
          WikiPageEventModel \
-         = Field(..., discriminator='suteki_request_type')
+         = Field(..., discriminator='type')
