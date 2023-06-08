@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException, Body
 from fastapi.responses import JSONResponse
 from json.decoder import JSONDecodeError
 import os
-from processors import process_jobs
+from processors import PayloadProcessor
 from pydantic import ValidationError
 import sys
 import yaml
@@ -64,7 +64,8 @@ async def post_request(request: Request):
     try:
         request_body = await request.json()
         model = Model(model=request.state.event | request_body).model
-        process_jobs(config, model)
+        PayloadProcessor(config=config, model=model)
+        return JSONResponse(content='{}')
     except ValidationError as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")
