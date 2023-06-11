@@ -9,7 +9,7 @@ from pydantic import ValidationError
 import sys
 import yaml
 
-suteki = FastAPI()
+suteki = FastAPI(redoc_url=None, docs_url=None)
 config = {}
 
 
