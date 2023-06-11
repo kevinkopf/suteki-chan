@@ -33,16 +33,6 @@ async def startup_event():
         sys.exit()
 
 
-@suteki.middleware('http')
-async def catch_request(request: Request, call_next):
-    receiver = determine_receiver(request).receiver
-    if receiver.security_check(config['security']['token']):
-        request = await modify_request_body(request)
-        response = await call_next(request)
-        return response
-    return JSONResponse(status_code=401, content="Unauthorized")
-
-
 def determine_receiver(request: Request) -> Receiver:
     user_agent = 'Custom'
     if request.headers.get('User-Agent')[:7] == 'GitLab/':
@@ -50,27 +40,33 @@ def determine_receiver(request: Request) -> Receiver:
     return Receiver(receiver=dict(request.headers) | {'user_agent': user_agent})
 
 
-async def modify_request_body(request: Request):
+async def determine_model(request: Request, receiver: BaseReceiver) -> Model:
     try:
-        request.state.event = {'type': request.headers.get('X-Gitlab-Event')}
-        return request
+        request_body = await request.json()
+        model = Model(model={'type': receiver.event, 'receiver': receiver.__class__.__name__} | request_body).model
+        return model
+    except ValidationError as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="Bad Request")
     except JSONDecodeError as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")
 
 
 @suteki.get("/")
-def root():
+def get_request():
     return {"message": "Suteki Chan says NYA!"}
 
 
 @suteki.post("/")
 async def post_request(request: Request):
     try:
-        request_body = await request.json()
-        model = Model(model=request.state.event | request_body).model
-        PayloadProcessor(config=config, model=model)
-        return JSONResponse(content='{}')
+        receiver = determine_receiver(request).receiver
+        if receiver.security_check(config['security']['token']):
+            model = await determine_model(request, receiver)
+            PayloadProcessor(config=config, model=model)
+            return JSONResponse(content='{}')
+        return JSONResponse(status_code=401, content="Unauthorized")
     except ValidationError as e:
         print(e)
         raise HTTPException(status_code=400, detail="Bad Request")

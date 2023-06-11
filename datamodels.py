@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Literal, List
+from typing import Literal, List, Annotated, Union
 from pydantic import BaseModel, Field
 
 
 class CommentEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Note Hook']
     object_kind: str
     event_type: str
@@ -19,6 +20,7 @@ class CommentEventModel(BaseModel):
 
 
 class DeploymentEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Deployment Hook']
     object_kind: str
     status: str
@@ -39,6 +41,7 @@ class DeploymentEventModel(BaseModel):
 
 
 class FeatureFlagEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Feature Flag Hook']
     object_kind: str
     project: dict
@@ -48,6 +51,7 @@ class FeatureFlagEventModel(BaseModel):
 
 
 class GroupMemberEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Member Hook']
     created_at: datetime
     updated_at: datetime
@@ -65,6 +69,7 @@ class GroupMemberEventModel(BaseModel):
 
 
 class IssueEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Issue Hook']
     object_kind: str
     event_type: str
@@ -79,6 +84,7 @@ class IssueEventModel(BaseModel):
 
 
 class JobEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Job Hook']
     object_kind: str
     ref: str
@@ -108,6 +114,7 @@ class JobEventModel(BaseModel):
 
 
 class MergeRequestEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Merge Request Hook']
     object_kind: str
     event_type: str
@@ -122,6 +129,7 @@ class MergeRequestEventModel(BaseModel):
 
 
 class PipelineEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Pipeline Hook']
     object_kind: str
     object_attributes: dict
@@ -134,6 +142,7 @@ class PipelineEventModel(BaseModel):
 
 
 class PushEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Push Hook']
     object_kind: str
     event_name: str
@@ -154,6 +163,7 @@ class PushEventModel(BaseModel):
 
 
 class ReleaseEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Release Hook']
     id: int
     created_at: datetime
@@ -170,6 +180,7 @@ class ReleaseEventModel(BaseModel):
 
 
 class SubgroupEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Subgroup Hook']
     created_at: datetime
     updated_at: datetime
@@ -185,6 +196,7 @@ class SubgroupEventModel(BaseModel):
 
 
 class TagEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Tag Push Hook']
     object_kind: str
     event_name: str
@@ -203,6 +215,7 @@ class TagEventModel(BaseModel):
 
 
 class WikiPageEventModel(BaseModel):
+    receiver: Literal['GitlabReceiver']
     type: Literal['Wiki Page Hook']
     object_kind: str
     user: dict
@@ -211,18 +224,33 @@ class WikiPageEventModel(BaseModel):
     object_attributes: dict
 
 
+class CustomEventModel(BaseModel):
+    receiver: Literal['Custom']
+
+
+GitlabEventModel = Annotated[
+    Union[
+        CommentEventModel,
+        DeploymentEventModel,
+        FeatureFlagEventModel,
+        GroupMemberEventModel,
+        IssueEventModel,
+        JobEventModel,
+        MergeRequestEventModel,
+        PipelineEventModel,
+        PushEventModel,
+        ReleaseEventModel,
+        SubgroupEventModel,
+        TagEventModel,
+        WikiPageEventModel
+    ], Field(discriminator='type')]
+
+EventModel = Annotated[
+    Union[
+        GitlabEventModel,
+        CustomEventModel
+    ], Field(discriminator='receiver')]
+
+
 class Model(BaseModel):
-    model: CommentEventModel | \
-         DeploymentEventModel | \
-         FeatureFlagEventModel | \
-         GroupMemberEventModel | \
-         IssueEventModel | \
-         JobEventModel | \
-         MergeRequestEventModel | \
-         PipelineEventModel | \
-         PushEventModel | \
-         ReleaseEventModel | \
-         SubgroupEventModel | \
-         TagEventModel | \
-         WikiPageEventModel \
-         = Field(..., discriminator='type')
+    model: EventModel

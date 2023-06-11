@@ -1,8 +1,15 @@
+from abc import ABC
+from fastapi import Request
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 
-class GitLabReceiver(BaseModel):
+class BaseReceiver(ABC, BaseModel):
+    user_agent: str
+    event: str
+
+
+class GitlabReceiver(BaseReceiver):
     user_agent: Literal['GitLab']
     instance: str
     event: str
@@ -23,12 +30,12 @@ class GitLabReceiver(BaseModel):
         return security_token == self.security_token
 
 
-class CustomReceiver(BaseModel):
+class CustomReceiver(BaseReceiver):
     user_agent: Literal['Custom']
 
 
 class Receiver(BaseModel):
     receiver: \
-        GitLabReceiver | \
+        GitlabReceiver | \
         CustomReceiver \
         = Field(..., discriminator='user_agent')
