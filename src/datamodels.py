@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Literal, List, Annotated, Union
+
+from fastapi import Body, Header
 from pydantic import BaseModel, Field
 
 
@@ -225,7 +227,10 @@ class WikiPageEventModel(BaseModel):
 
 
 class CustomEventModel(BaseModel):
-    receiver: Literal['Custom']
+    receiver: Literal['CustomReceiver']
+
+    class Config:
+        extra = 'allow'
 
 
 GitlabEventModel = Annotated[

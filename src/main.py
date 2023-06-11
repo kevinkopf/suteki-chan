@@ -64,6 +64,8 @@ async def post_request(request: Request):
         receiver = determine_receiver(request).receiver
         if receiver.security_check(config['security']['token']):
             model = await determine_model(request, receiver)
+            print(type(model))
+            print(model)
             PayloadProcessor(config=config, model=model)
             return JSONResponse(content='{}')
         return JSONResponse(status_code=401, content="Unauthorized")

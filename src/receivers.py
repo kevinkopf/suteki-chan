@@ -1,5 +1,4 @@
 from abc import ABC
-from fastapi import Request
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
@@ -7,6 +6,10 @@ from pydantic import BaseModel, Field
 class BaseReceiver(ABC, BaseModel):
     user_agent: str
     event: str
+    security_token: str
+
+    def security_check(self, security_token: str) -> bool:
+        return security_token == self.security_token
 
 
 class GitlabReceiver(BaseReceiver):
@@ -26,12 +29,20 @@ class GitlabReceiver(BaseReceiver):
             'content_type': 'content-type',
         }
 
-    def security_check(self, security_token: str) -> bool:
-        return security_token == self.security_token
-
 
 class CustomReceiver(BaseReceiver):
     user_agent: Literal['Custom']
+    security_token: str
+    event: Optional[str]
+    content_type: Optional[str]
+
+    class Config:
+        extra = 'allow'
+        fields = {
+            'event': 'x-event',
+            'security_token': 'x-token',
+            'content_type': 'content-type',
+        }
 
 
 class Receiver(BaseModel):
