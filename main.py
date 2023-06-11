@@ -1,5 +1,6 @@
 from datamodels import *
-from fastapi import FastAPI, Request, HTTPException, Body
+from receivers import *
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from json.decoder import JSONDecodeError
 import os
@@ -34,15 +35,19 @@ async def startup_event():
 
 @suteki.middleware('http')
 async def catch_request(request: Request, call_next):
-    if security_check(request):
+    receiver = determine_receiver(request).receiver
+    if receiver.security_check(config['security']['token']):
         request = await modify_request_body(request)
         response = await call_next(request)
         return response
     return JSONResponse(status_code=401, content="Unauthorized")
 
 
-def security_check(request: Request) -> bool:
-    return config['security']['token'] == request.headers.get('X-Gitlab-Token')
+def determine_receiver(request: Request) -> Receiver:
+    user_agent = 'Custom'
+    if request.headers.get('User-Agent')[:7] == 'GitLab/':
+        user_agent = 'GitLab'
+    return Receiver(receiver=dict(request.headers) | {'user_agent': user_agent})
 
 
 async def modify_request_body(request: Request):

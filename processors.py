@@ -4,15 +4,14 @@ from datamodels import *
 import importlib
 
 
-class Output(object):
-    pass
-
-
 class PayloadProcessor:
+    class Output(object):
+        pass
+
     def __init__(self, config: dict, model: BaseModel) -> None:
         self.config = config
         self.model = model
-        self.output = Output()
+        self.output = PayloadProcessor.Output()
         self.process_payload()
 
     def process_payload(self):
