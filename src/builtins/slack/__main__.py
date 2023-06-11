@@ -1,5 +1,5 @@
 import os
-
+from email.utils import parseaddr
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from typing import Union
@@ -15,7 +15,7 @@ class Slack:
     def get_user_by_email(self) -> Union[str, None]:
         try:
             result = self.client.users_lookupByEmail(
-                email=self.action_args['email']
+                email=self.action_args['channel']
             )
             if result.get("ok"):
                 return result.get("user")['id']
@@ -25,10 +25,16 @@ class Slack:
             print("Error posting message: {}".format(e))
             return None
 
+    def is_channel_email_address(self) -> bool:
+        addr = parseaddr(self.action_args['channel'])
+        if addr[1]:
+            return True
+        return False
+
     def post_message(self) -> Union[str, None]:
         try:
             result = self.client.chat_postMessage(
-                channel=self.action_args['channel'],
+                channel=self.get_user_by_email() if self.is_channel_email_address() else self.action_args['channel'],
                 thread_ts=self.action_args['thread'] if 'thread' in self.action_args else None,
                 text=self.action_args['message']
             )
@@ -43,7 +49,7 @@ class Slack:
     def post_file(self):
         try:
             result = self.client.files_upload(
-                channels=self.action_args['channel'],
+                channel=self.get_user_by_email() if self.is_channel_email_address() else self.action_args['channel'],
                 thread_ts=self.action_args['thread'] if 'thread' in self.action_args else None,
                 file=self.action_args['file'],
             )
