@@ -19,7 +19,7 @@ async def startup_event():
     config_path = os.getenv('SUTEKI_CONFIG')
 
     try:
-        with open('./config.yaml') as f:
+        with open('config.yaml') as f:
             config_local = yaml.load(f, Loader=yaml.BaseLoader)
         with open(str(config_path)) as f:
             config_user = yaml.load(f, Loader=yaml.BaseLoader)
