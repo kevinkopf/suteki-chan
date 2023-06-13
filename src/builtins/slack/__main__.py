@@ -7,10 +7,15 @@ from typing import Union
 
 class Slack:
     def __init__(self, config: dict, action: dict) -> None:
-        token = os.getenv('SUTEKI_SLACK_TOKEN') if os.getenv('SUTEKI_SLACK_TOKEN') else config['security']['slack']['token']
-        self.client = WebClient(token=token)
         self.action = action
         self.action_args = action['args']
+        if 'token' in self.action_args:
+            token = self.action_args['token']
+        elif os.getenv('SUTEKI_SLACK_TOKEN'):
+            token = os.getenv('SUTEKI_SLACK_TOKEN')
+        else:
+            token = config['security']['slack']['token']
+        self.client = WebClient(token=token)
 
     def get_user_by_email(self) -> Union[str, None]:
         try:
