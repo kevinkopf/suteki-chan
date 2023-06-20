@@ -16,7 +16,7 @@ config = {}
 @suteki.on_event("startup")
 async def startup_event():
     global config
-    config_path = os.getenv('SUTEKI_CONFIG')
+    config_path = os.getenv('SUTEKI_CONFIG', '~/config.yaml')
 
     try:
         with open('config.yaml') as f:
@@ -25,8 +25,10 @@ async def startup_event():
             config_user = yaml.load(f, Loader=yaml.BaseLoader)
     except yaml.YAMLError:
         print('ERROR: Could not read config file: ' + config_path)
+        sys.exit()
     except FileNotFoundError:
         print('ERROR: Config file does not exist: ' + config_path)
+        sys.exit()
     config = config_local | config_user
     if config['security']['token'] == "":
         print("ERROR: Security token not defined in config file: " + config_path)
