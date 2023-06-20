@@ -9,4 +9,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${GITHUB_REPOSITORY}:${GITHUB_REF} --tag ${GITHUB_REPOSITORY}:latest
+      run: docker build . --file Dockerfile --tag ${GITHUB_REPOSITORY}:${GITHUB_REF_NAME} --tag ${GITHUB_REPOSITORY}:latest
