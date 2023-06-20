@@ -1,7 +1,5 @@
 from datetime import datetime
 from typing import Literal, List, Annotated, Union
-
-from fastapi import Body, Header
 from pydantic import BaseModel, Field
 
 
