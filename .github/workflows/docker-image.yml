@@ -1,0 +1,12 @@
+name: Build Suteki-chan Docker image
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${GITHUB_REPOSITORY}:${GITHUB_REF} --tag ${GITHUB_REPOSITORY}:latest
